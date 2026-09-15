@@ -150,6 +150,13 @@ body {
     opacity: 0.8;
 }
 
+.nav-links a,
+.nav-links a:visited {
+    color: white;
+    font: inherit;
+    text-decoration: none;
+}
+
 
 /* =========================
    CONTENT

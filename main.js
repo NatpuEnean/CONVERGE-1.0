@@ -4,6 +4,24 @@ const slides = document.querySelectorAll(".slide");
 const slideContent = document.querySelector(".slide-content");
 const title = document.querySelector(".title");
 const category = document.querySelector(".category");
+const hero = document.querySelector(".hero");
+
+function loadSlideImage(index) {
+    const image = slides[index]?.querySelector("img");
+    if (!image || image.getAttribute("srcset") || !image.dataset.srcset) {
+        return;
+    }
+
+    image.srcset = image.dataset.srcset;
+    image.sizes = image.dataset.sizes || "100vw";
+}
+
+function loadMap() {
+    const map = document.querySelector(".contact-map");
+    if (map && !map.getAttribute("src")) {
+        map.src = map.dataset.src;
+    }
+}
 
 const content = [
     {
@@ -121,8 +139,31 @@ const masterTimeline = gsap.timeline({
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        markers: false
+        markers: false,
+        onUpdate: (self) => {
+            const sceneIndex = Math.min(slides.length - 1, Math.floor(self.progress * (slides.length - 0.01)));
+            loadSlideImage(sceneIndex);
+            if (sceneIndex === slides.length - 1) {
+                loadMap();
+            }
+        }
     }
+});
+
+document.querySelectorAll("[data-scene]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        const sceneIndex = Number(link.dataset.scene);
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const scenePosition = hero.offsetTop + (maxScroll - hero.offsetTop) * (sceneIndex / (slides.length - 1));
+
+        window.scrollTo({
+            top: scenePosition,
+            behavior: "smooth"
+        });
+        history.replaceState(null, "", link.hash);
+    });
 });
 
 function addSlideTransition(timeline, currentIndex, nextIndex) {
